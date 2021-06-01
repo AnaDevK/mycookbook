@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">My Cook Book</string>
+    <string name="create_new_receipt">Create New Recipe</string>
+    <string name="update_receipt">Update Recipe</string>
+    <string name="save_button">Save</string>
+    <string name="update_button">Update</string>
+    <string name="share">Share</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="A">Starter</string>
+    <string name="S">Soup</string>
+    <string name="M">Main Course</string>
+    <string name="D">Dessert</string>
+    <string name="O">All</string>
+    <string-array name="spinnerCategoryItems">
+        <item>@string/O</item>
+        <item>@string/A</item>
+        <item>@string/S</item>
+        <item>@string/M</item>
+        <item>@string/D</item>
+    </string-array>
+    <string name="photos_access_request">In order to get the images, we need access to your photo gallery</string>
+    <string name="delete_question">Are you sure you want to delete this recipe?</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="yes_button">Yes</string>
+    <string name="no_button">No</string>
+    <string name="save_changes_question">Do you want to save your changes before exiting?</string>
+    <string name="notes"><![CDATA[-> Check additional notes]]></string>
+    <string name="add_name">Please add a name to your recipe</string>
+    <string name="choose_pics">Choose pics</string>
+    <string name="edit_recipe">Edit Recipe</string>
+    <string name="title">Recipes Book</string>
+    <string name="search_recipe">Search Recipe</string>
+</resources>

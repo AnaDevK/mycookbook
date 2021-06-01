@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="receipt"
+            type="com.example.mycookbook.database.Receipt" />
+
+        <variable
+            name="clickListener"
+            type="com.example.mycookbook.utils.ReceiptAdapter.ReceiptClickListener" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="3dp"
+        app:contentPadding="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:onClick="@{() -> clickListener.onClick(receipt)}"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imgReceipt"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/foodpic" />
+
+            <TextView
+                android:id="@+id/textViewReceiptTitleId"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:text="@{receipt.receiptTitle}"
+                android:textSize="24sp"
+                tools:text="Test recipe" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

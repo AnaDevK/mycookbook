@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/allReceiptsFragment">
+    <fragment
+        android:id="@+id/allReceiptsFragment"
+        android:name="com.example.mycookbook.ui.overview.AllReceiptsFragment"
+        android:label="AllReceiptsFragment" >
+        <action
+            android:id="@+id/action_allReceiptsFragment_to_detailReceiptFragment"
+            app:destination="@id/detailReceiptFragment"
+            app:popUpTo="@id/allReceiptsFragment" />
+        <action
+            android:id="@+id/action_allReceiptsFragment_to_newReceiptFragment2"
+            app:destination="@id/newReceiptFragment"
+            app:popUpTo="@id/allReceiptsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailReceiptFragment"
+        android:name="com.example.mycookbook.ui.detail.DetailReceiptFragment"
+        android:label="DetailReceiptFragment" >
+        <argument
+            android:name="selectedReceiptId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_detailReceiptFragment_to_newReceiptFragment"
+            app:destination="@id/newReceiptFragment" />
+        <action
+            android:id="@+id/action_detailReceiptFragment_to_allReceiptsFragment"
+            app:destination="@id/allReceiptsFragment" />
+        <action
+            android:id="@+id/action_detailReceiptFragment_to_notesReceiptFragment"
+            app:destination="@id/notesReceiptFragment"
+            app:popUpTo="@id/detailReceiptFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/newReceiptFragment"
+        android:name="com.example.mycookbook.ui.newupdate.NewReceiptFragment"
+        android:label="NewReceiptFragment" >
+        <action
+            android:id="@+id/action_newReceiptFragment_to_allReceiptsFragment"
+            app:destination="@id/allReceiptsFragment"
+            app:popUpTo="@id/allReceiptsFragment" />
+        <argument
+            android:name="receiptUpdateId"
+            app:argType="long" />
+    </fragment>
+    <fragment
+        android:id="@+id/notesReceiptFragment"
+        android:name="com.example.mycookbook.ui.detail.NotesReceiptFragment"
+        android:label="NotesReceiptFragment" >
+        <argument
+            android:name="receiptId"
+            app:argType="long" />
+    </fragment>
+</navigation>
