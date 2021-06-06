@@ -1,18 +1,20 @@
 package com.example.mycookbook.utils
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mycookbook.R
 
 class ImagePickerAdapter(
-        private val context: Context,
-        private val imageUris: List<Uri>,
-        private val imageClickListener: ImageClickListener
+    private val context: Context,
+    private val imageUris: List<Uri>,
+    private val imageClickListener: ImageClickListener
 ) : RecyclerView.Adapter<ImagePickerAdapter.ViewHolder>() {
 
     interface ImageClickListener {
@@ -31,7 +33,16 @@ class ImagePickerAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (position < imageUris.size) {
-            holder.bind(imageUris[position])
+            val imgPath: Uri
+            if(imageUris[position].toString().contains("img")) {
+                imgPath = ((ContextWrapper(context).getDir(
+                    "images",
+                    Context.MODE_PRIVATE
+                )).toString() + "/" + imageUris[position].toString()).toUri()
+            } else {
+                imgPath = imageUris[position]
+            }
+            holder.bind(imgPath)
         } else {
             holder.bind()
         }

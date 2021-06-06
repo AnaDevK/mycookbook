@@ -1,6 +1,8 @@
 package com.example.mycookbook.ui.detail
 
 import android.content.ContentResolver
+import android.content.Context
+import android.content.ContextWrapper
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -64,11 +66,11 @@ class DetailReceiptFragment : Fragment() {
         view_pager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         val indicator = binding.indicator
         detailReceiptViewModel.receipt.observe(viewLifecycleOwner, {
-            (activity as? AppCompatActivity)?.supportActionBar?.setTitle(it.receiptTitle)
+            if(it.receiptTitle != null) (activity as? AppCompatActivity)?.supportActionBar?.setTitle(it.receiptTitle)
 
             val imagesListStr = it.images.toString().split(";").toTypedArray()
             for (i in 0 until imagesListStr.count() - 1) {
-                imagesList.add(imagesListStr[i].toUri())
+                imagesList.add(setImageFullPath(imagesListStr[i]))
             }
             if (!imagesList.isEmpty()) {
                 view_pager2.adapter = ViewPageAdapter(imagesList)
@@ -152,5 +154,9 @@ class DetailReceiptFragment : Fragment() {
                 )
             }
         }
+    }
+
+    fun setImageFullPath(fileName: String): Uri{
+        return ((ContextWrapper(requireContext()).getDir("images", Context.MODE_PRIVATE)).toString() + "/" + fileName).toUri()
     }
 }

@@ -13,5 +13,6 @@
         android:layout_margin="8dp"
         android:background="@android:color/darker_gray"
         android:scaleType="centerCrop"
-        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        tools:srcCompat="@tools:sample/backgrounds/scenic"
+        android:contentDescription="TODO" />
 </LinearLayout>

@@ -8,4 +8,5 @@
     android:clickable="true"
     android:focusable="true"
     android:scaleType="fitCenter"
-    tools:srcCompat="@tools:sample/avatars"></ImageView>
+    tools:srcCompat="@tools:sample/avatars"
+    android:contentDescription="TODO"></ImageView>

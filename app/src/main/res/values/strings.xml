@@ -25,7 +25,7 @@
     <string name="yes_button">Yes</string>
     <string name="no_button">No</string>
     <string name="save_changes_question">Do you want to save your changes before exiting?</string>
-    <string name="notes"><![CDATA[-> Check additional notes]]></string>
+    <string name="notes"><![CDATA[Check additional notes]]></string>
     <string name="add_name">Please add a name to your recipe</string>
     <string name="choose_pics">Choose pics</string>
     <string name="edit_recipe">Edit Recipe</string>

@@ -49,7 +49,7 @@ class AllReceiptsFragment : Fragment() {
         binding.allReceiptsViewModel = allReceiptsViewModel
         binding.setLifecycleOwner(this)
 
-        adapter = ReceiptAdapter(ReceiptAdapter.ReceiptClickListener {
+        adapter = ReceiptAdapter(requireContext(), ReceiptAdapter.ReceiptClickListener {
             allReceiptsViewModel.displayReceiptDetails(it)
         })
 
@@ -78,6 +78,7 @@ class AllReceiptsFragment : Fragment() {
                 AllReceiptsFragmentDirections.ActionAllReceiptsFragmentToNewReceiptFragment2(0)
             )
         }
+
         return binding.root
     }
 
@@ -125,20 +126,9 @@ class AllReceiptsFragment : Fragment() {
             override fun onQueryTextChange(query: String): Boolean {
                 if (query != null) {
                     searchReceiptByName(query)
-                   //binding.searchView.clearFocus()
-//                    binding.searchView.setQuery("", false)
-//                    binding.searchView.setIconifiedByDefault(true)
-//                    binding.searchView.onActionViewCollapsed()
                 }
                 return true
             }
         })
-//        if (searchViewQuerySubmitted) {
-//            binding.searchView.clearFocus()
-//            binding.searchView.setQuery("", false)
-//            binding.searchView.setIconifiedByDefault(true)
-//            binding.searchView.onActionViewCollapsed()
-//        }
     }
-
 }

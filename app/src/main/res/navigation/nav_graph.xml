@@ -11,7 +11,8 @@
         <action
             android:id="@+id/action_allReceiptsFragment_to_detailReceiptFragment"
             app:destination="@id/detailReceiptFragment"
-            app:popUpTo="@id/allReceiptsFragment" />
+            app:popUpTo="@id/allReceiptsFragment"
+            app:popUpToInclusive="false" />
         <action
             android:id="@+id/action_allReceiptsFragment_to_newReceiptFragment2"
             app:destination="@id/newReceiptFragment"
@@ -29,7 +30,9 @@
             app:destination="@id/newReceiptFragment" />
         <action
             android:id="@+id/action_detailReceiptFragment_to_allReceiptsFragment"
-            app:destination="@id/allReceiptsFragment" />
+            app:destination="@id/allReceiptsFragment"
+            app:popUpTo="@id/allReceiptsFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_detailReceiptFragment_to_notesReceiptFragment"
             app:destination="@id/notesReceiptFragment"
@@ -42,7 +45,8 @@
         <action
             android:id="@+id/action_newReceiptFragment_to_allReceiptsFragment"
             app:destination="@id/allReceiptsFragment"
-            app:popUpTo="@id/allReceiptsFragment" />
+            app:popUpTo="@id/allReceiptsFragment"
+            app:popUpToInclusive="true" />
         <argument
             android:name="receiptUpdateId"
             app:argType="long" />

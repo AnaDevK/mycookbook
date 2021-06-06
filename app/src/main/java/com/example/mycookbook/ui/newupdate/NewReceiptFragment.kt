@@ -82,12 +82,17 @@ class NewReceiptFragment : Fragment() {
             Save(updateReceiptId, isEdit)
         }
 
+        rvImagePicker = binding.rvImagePicked
+        adapter = pickerAdapter(chosenImageUris)
+        rvImagePicker.adapter = adapter
+        rvImagePicker.setHasFixedSize(true)
+        rvImagePicker.layoutManager = GridLayoutManager(context, 3)
+
         updateReceiptId?.let {
             if (it != 0L) {
                 newReceiptViewModel.GetReceipt(updateReceiptId).observe(
                         viewLifecycleOwner,
                         Observer {
-
                             // Protect from null, which occurs when we delete the item
                             if (it != null) {
                                 // populate with data
@@ -103,37 +108,32 @@ class NewReceiptFragment : Fragment() {
                                 }
                             }
                             (activity as? AppCompatActivity)?.supportActionBar?.setTitle(getString(R.string.edit_recipe))
+                            adapter.notifyDataSetChanged()
                         })
                 isEdit = true
-
             }
         }
 
-        fun pickerAdapter(chosenImageUris: MutableList<Uri>): ImagePickerAdapter {
-            return ImagePickerAdapter(requireContext(),
-                    chosenImageUris,
-                    object : ImagePickerAdapter.ImageClickListener {
-                        override fun onPlaceHolderClicked() {
-                            if (isPermissionGranted(requireActivity(), READ_PHOTOS_PERMISSION)) {
-                                //for existing image, alertdialog: options -> delete image, pick other image from gallery
-                                launchIntentForPhotos()
-                            } else {
-                                requestPermission(
-                                        requireActivity(),
-                                        READ_PHOTOS_PERMISSION,
-                                        READ_EXTERNAL_PHOTOS_CODE
-                                )
-                            }
-                        }
-                    })
-        }
-        rvImagePicker = binding.rvImagePicked
-        adapter = pickerAdapter(chosenImageUris)
-        rvImagePicker.adapter = adapter
-        rvImagePicker.setHasFixedSize(true)
-        rvImagePicker.layoutManager = GridLayoutManager(context, 3)
-
         return binding.root
+    }
+
+    fun pickerAdapter(chosenImageUris: MutableList<Uri>): ImagePickerAdapter {
+        return ImagePickerAdapter(requireContext(),
+            chosenImageUris,
+            object : ImagePickerAdapter.ImageClickListener {
+                override fun onPlaceHolderClicked() {
+                    if (isPermissionGranted(requireActivity(), READ_PHOTOS_PERMISSION)) {
+                        //for existing image, alertdialog: options -> delete image, pick other image from gallery
+                        launchIntentForPhotos()
+                    } else {
+                        requestPermission(
+                            requireActivity(),
+                            READ_PHOTOS_PERMISSION,
+                            READ_EXTERNAL_PHOTOS_CODE
+                        )
+                    }
+                }
+            })
     }
 
     private fun Save(updateReceiptId: Long, isEdit: Boolean) {
@@ -208,8 +208,9 @@ class NewReceiptFragment : Fragment() {
                 // Initializing a new file
                 // The bellow line return a directory in internal storage
                 var file = wrapper.getDir("images", Context.MODE_PRIVATE)
+                val fileName = UUID.randomUUID().toString() + "img${i}" + ".jpg"
                 // Create a file to save the image
-                file = File(file, UUID.randomUUID().toString() + "img${i}" + ".jpg")
+                file = File(file, fileName)
                 try {
                     // Get the file output stream
                     val stream: OutputStream = FileOutputStream(file)
@@ -220,14 +221,14 @@ class NewReceiptFragment : Fragment() {
                     stream.flush()
                     // Close stream
                     stream.close()
-                    listofImages.add(Uri.parse(file.absolutePath))
+                    listofImages.add(Uri.parse(fileName))
                 } catch (e: IOException) { // Catch the exception
                     e.printStackTrace()
                     Log.d(TAG, "Error at image nr: ${i}" + e.printStackTrace().toString())
                 }
             } else {
                 //we don't save again images already saved
-                if (photoUriList[i].toString().contains("data")) {
+                if (photoUriList[i].toString().contains("img")) {
                     listofImages.add(photoUriList[i])
                 }
             }
@@ -256,5 +257,9 @@ class NewReceiptFragment : Fragment() {
         intent.type = "image/*"
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
         startActivityForResult(Intent.createChooser(intent, getString(R.string.choose_pics)), PICK_PHOTO_CODE)
+    }
+
+    fun setImageFullPath(fileName: String): Uri{
+        return ((ContextWrapper(requireContext()).getDir("images", Context.MODE_PRIVATE)).toString() + "/" + fileName).toUri()
     }
 }

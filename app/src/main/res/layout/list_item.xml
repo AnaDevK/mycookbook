@@ -37,7 +37,8 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/foodpic" />
+                app:srcCompat="@drawable/foodpic"
+                android:contentDescription="TODO" />
 
             <TextView
                 android:id="@+id/textViewReceiptTitleId"

@@ -1,5 +1,7 @@
 package com.example.mycookbook.utils
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.net.toUri
@@ -9,14 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.mycookbook.database.Receipt
 import com.example.mycookbook.databinding.ListItemBinding
 
-class ReceiptAdapter(val clickListener: ReceiptClickListener): ListAdapter<Receipt, ReceiptAdapter.ReceiptViewHolder>(DiffCallback){
+class ReceiptAdapter(val context: Context, val clickListener: ReceiptClickListener): ListAdapter<Receipt, ReceiptAdapter.ReceiptViewHolder>(DiffCallback){
 
-    class ReceiptViewHolder(private var binding: ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ReceiptViewHolder(var binding: ListItemBinding) : RecyclerView.ViewHolder(binding.root) {
         //val img: ImageView =binding.imageReceiptTitleId
         //val title: TextView = binding.textViewReceiptTitleId
         fun bind(receipt: Receipt, clickListener: ReceiptClickListener) {
             binding.receipt = receipt
-            if(receipt.receiptImageUri1 != null) binding.imgReceipt.setImageURI(receipt.receiptImageUri1!!.toUri())
+            if(receipt.receiptImageUri1 != null) binding.imgReceipt.setImageURI(((ContextWrapper(context).getDir("images", Context.MODE_PRIVATE)).toString() + "/" + receipt.receiptImageUri1!!).toUri())
             binding.clickListener = clickListener
             binding.executePendingBindings()
 
