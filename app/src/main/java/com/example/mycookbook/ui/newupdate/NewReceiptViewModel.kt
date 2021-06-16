@@ -1,42 +1,27 @@
 package com.example.mycookbook.ui.newupdate
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mycookbook.database.Receipt
-import com.example.mycookbook.database.ReceiptsDatabase
+import com.example.mycookbook.repository.ReceiptsRepository
 import kotlinx.coroutines.launch
 
-class NewReceiptViewModel(app: Application) : AndroidViewModel(app) {
+class NewReceiptViewModel(private val receiptsRepository: ReceiptsRepository) : ViewModel() {
 
-    val database = ReceiptsDatabase.getInstance(app).receiptsDatabaseDao
-
-   // private var _receipt = MutableLiveData<Receipt?>()
-   // var receipt: LiveData<Receipt>
-        //get() = _receipt
-
-    private suspend fun insert(receipt: Receipt) {
-        database.insert(receipt)
-    }
-
-    private suspend fun update(receipt: Receipt) {
-        database.update(receipt)
-    }
-
-    fun InsertReceipt(receipt: Receipt) {
+    fun insertReceipt(receipt: Receipt) {
         viewModelScope.launch {
-           insert(receipt)
+            receiptsRepository.insertReceipt(receipt)
         }
     }
 
-    fun UpdateReceipt(receipt: Receipt) {
+    fun updateReceipt(receipt: Receipt) {
         viewModelScope.launch {
-            update(receipt)
+            receiptsRepository.updateReceipt(receipt)
         }
     }
 
-    fun GetReceipt(id: Long): LiveData<Receipt> {
-        return database.getReceiptById(id)
+    fun getReceipt(id: Long): LiveData<Receipt> {
+        return receiptsRepository.getReceiptbyId(id)
     }
 }

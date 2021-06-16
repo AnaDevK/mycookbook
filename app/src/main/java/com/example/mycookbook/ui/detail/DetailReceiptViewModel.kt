@@ -1,43 +1,27 @@
 package com.example.mycookbook.ui.detail
 
-import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.mycookbook.database.Receipt
-import com.example.mycookbook.database.ReceiptsDatabase
+import com.example.mycookbook.repository.ReceiptsRepository
 import com.example.mycookbook.utils.setReceiptCategory
 import kotlinx.coroutines.launch
 
-class DetailReceiptViewModel(receiptId: Long, app: Application) : AndroidViewModel(app) {
-
-//    private val _selectedReceiptId = MutableLiveData<Long>()
-//    val selectedReceiptId: LiveData<Long>
-//        get() =  _selectedReceiptId
-    /**
-     * Navigation for the SleepDetail fragment.
-     */
-    private val _navigateToUpdate = MutableLiveData<Long>()
-    val navigateToUpdate
-        get() = _navigateToUpdate
-
-    fun onUpdateNavigated() {
-        _navigateToUpdate.value = null
-    }
-
-    val receipt: LiveData<Receipt>
-    val database = ReceiptsDatabase.getInstance(app).receiptsDatabaseDao
-
+class DetailReceiptViewModel(receiptId: Long, private val receiptsRepository: ReceiptsRepository) : ViewModel() {
+    lateinit var receipt: LiveData<Receipt>
 
     init {
-            receipt = database.getReceiptById(receiptId)
+        viewModelScope.launch {
+            receipt =
+                receiptsRepository.getReceiptbyId(receiptId)
         }
-
-    private suspend fun DeleteReceipt(rec: Receipt) {
-        database.delete(rec)
     }
 
-    fun Delete(receipt: Receipt) {
+    fun delete(rec: Receipt) {
         viewModelScope.launch {
-            DeleteReceipt(receipt)
+            receiptsRepository.deleteReceipt(rec)
         }
     }
 

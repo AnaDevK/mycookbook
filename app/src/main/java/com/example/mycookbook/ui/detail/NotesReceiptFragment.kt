@@ -10,7 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.example.mycookbook.R
+import com.example.mycookbook.database.ReceiptsDatabase
+import com.example.mycookbook.database.ReceiptsLocalDataSource
 import com.example.mycookbook.databinding.NotesReceiptFragmentBinding
+import com.example.mycookbook.repository.DefaultReceiptsRepository
+import kotlinx.coroutines.Dispatchers
 
 class NotesReceiptFragment : Fragment() {
     private var receiptId: Long = 0
@@ -22,7 +26,7 @@ class NotesReceiptFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Get a reference to the binding object and inflate the fragment views.
         binding = DataBindingUtil.inflate( inflater, R.layout.notes_receipt_fragment, container,false)
 
@@ -32,7 +36,11 @@ class NotesReceiptFragment : Fragment() {
 
         val application = requireNotNull(activity).application
         receiptId = NotesReceiptFragmentArgs.fromBundle(requireArguments()).receiptId
-        viewModelFactory = DetailReceiptViewModelFactory(receiptId, application)
+
+        val dataBase = ReceiptsDatabase.getInstance(application).receiptsDatabaseDao
+        val receiptsLocalDataSource = ReceiptsLocalDataSource(dataBase, Dispatchers.Main)
+        val repository = DefaultReceiptsRepository(receiptsLocalDataSource)
+        viewModelFactory = DetailReceiptViewModelFactory(receiptId, repository)
         notesReceiptViewModel = ViewModelProvider(this, viewModelFactory).get(DetailReceiptViewModel::class.java)
 
         binding.notesReceiptViewModel = notesReceiptViewModel

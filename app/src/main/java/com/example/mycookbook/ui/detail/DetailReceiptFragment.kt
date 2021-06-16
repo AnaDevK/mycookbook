@@ -16,11 +16,16 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.viewpager2.widget.ViewPager2
+import com.example.mycookbook.MainActivity
 import com.example.mycookbook.R
 import com.example.mycookbook.database.Receipt
+import com.example.mycookbook.database.ReceiptsDatabase
+import com.example.mycookbook.database.ReceiptsLocalDataSource
 import com.example.mycookbook.databinding.DetailReceiptFragmentBinding
+import com.example.mycookbook.repository.DefaultReceiptsRepository
 import com.example.mycookbook.utils.ViewPageAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.IOException
 
@@ -28,7 +33,7 @@ import java.io.IOException
 class DetailReceiptFragment : Fragment() {
 
     private var receiptId: Long = 0
-    private lateinit var detailReceiptViewModel: DetailReceiptViewModel
+    lateinit var detailReceiptViewModel: DetailReceiptViewModel
     private lateinit var binding: DetailReceiptFragmentBinding
     private lateinit var viewModelFactory: DetailReceiptViewModelFactory
     private lateinit var navController: NavController
@@ -37,46 +42,53 @@ class DetailReceiptFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         imagesList.clear()
         // Get a reference to the binding object and inflate the fragment views.
-        binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.detail_receipt_fragment,
-            container,
-            false
-        )
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.detail_receipt_fragment, container, false)
 
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowHomeEnabled(false)
+        if (activity is MainActivity) {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowHomeEnabled(false)
+        }
         setHasOptionsMenu(true)
 
-        val application = requireNotNull(activity).application
+        val application = requireNotNull(this.activity).application
+        val dataBase = ReceiptsDatabase.getInstance(application).receiptsDatabaseDao
+        val receiptsLocalDataSource = ReceiptsLocalDataSource(dataBase, Dispatchers.Main)
+        val repository = DefaultReceiptsRepository(receiptsLocalDataSource)
         receiptId = DetailReceiptFragmentArgs.fromBundle(requireArguments()).selectedReceiptId
-        viewModelFactory = DetailReceiptViewModelFactory(receiptId, application)
-        detailReceiptViewModel = ViewModelProvider(this, viewModelFactory).get(
-            DetailReceiptViewModel::class.java
-        )
+        viewModelFactory = DetailReceiptViewModelFactory(receiptId, repository)
+        detailReceiptViewModel =
+            ViewModelProvider(this, viewModelFactory).get(DetailReceiptViewModel::class.java)
 
         binding.detailReceiptViewModel = detailReceiptViewModel
         binding.setLifecycleOwner(this)
-
-        navController = Navigation.findNavController(requireActivity(), R.id.myNavHostFragment)
+        if (requireActivity() is MainActivity) {
+            navController = Navigation.findNavController(requireActivity(), R.id.myNavHostFragment)
+        }
         val view_pager2 = binding.viewPager2
         view_pager2.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         val indicator = binding.indicator
         detailReceiptViewModel.receipt.observe(viewLifecycleOwner, {
-            if(it.receiptTitle != null) (activity as? AppCompatActivity)?.supportActionBar?.setTitle(it.receiptTitle)
-
-            val imagesListStr = it.images.toString().split(";").toTypedArray()
-            for (i in 0 until imagesListStr.count() - 1) {
-                imagesList.add(setImageFullPath(imagesListStr[i]))
+            if (activity is MainActivity && it!= null) {
+                (activity as? AppCompatActivity)?.supportActionBar?.setTitle(it.receiptTitle)
+                if(it.images != null) {
+                    val imagesListStr = it.images.toString().split(";").toTypedArray()
+                    for (i in 0 until imagesListStr.count() - 1) {
+                        imagesList.add(setImageFullPath(imagesListStr[i]))
+                    }
+                }
             }
             if (!imagesList.isEmpty()) {
                 view_pager2.adapter = ViewPageAdapter(imagesList)
             } else {
                 val uri =
-                    Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator + requireContext().getPackageName() + File.separator + R.drawable.foodpic);
+                    Uri.parse(
+                        ContentResolver.SCHEME_ANDROID_RESOURCE + File.pathSeparator + File.separator + File.separator
+                                + requireContext().getPackageName() + File.separator + R.drawable.foodpic
+                    )
                 view_pager2.adapter = ViewPageAdapter(listOf(uri))
             }
             indicator.setViewPager(view_pager2)
@@ -106,7 +118,7 @@ class DetailReceiptFragment : Fragment() {
             .setPositiveButton(getString(R.string.yes_button)) { _, _ ->
                 val receipt = Receipt(receiptId)
 
-                detailReceiptViewModel.Delete(receipt)
+                detailReceiptViewModel.delete(receipt)
                 if (imagesList.isNotEmpty()) {
                     deleteInternalImages(imagesList)
                 }
@@ -143,7 +155,7 @@ class DetailReceiptFragment : Fragment() {
         for (i in 0 until photoUriList.count()) {
             val file = File(photoUriList[i].toString())
             try {
-                if(file.exists()) {
+                if (file.exists()) {
                     file.delete()
                 }
             } catch (e: IOException) { // Catch the exception
@@ -156,7 +168,10 @@ class DetailReceiptFragment : Fragment() {
         }
     }
 
-    fun setImageFullPath(fileName: String): Uri{
-        return ((ContextWrapper(requireContext()).getDir("images", Context.MODE_PRIVATE)).toString() + "/" + fileName).toUri()
+    private fun setImageFullPath(fileName: String): Uri {
+        return ((ContextWrapper(requireContext()).getDir(
+            "images",
+            Context.MODE_PRIVATE
+        )).toString() + "/" + fileName).toUri()
     }
 }

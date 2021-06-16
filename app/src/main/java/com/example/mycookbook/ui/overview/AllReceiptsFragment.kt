@@ -8,12 +8,16 @@ import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.mycookbook.MainActivity
 import com.example.mycookbook.R
+import com.example.mycookbook.database.ReceiptsDatabase
+import com.example.mycookbook.database.ReceiptsLocalDataSource
 import com.example.mycookbook.databinding.AllReceiptsFragmentBinding
+import com.example.mycookbook.repository.DefaultReceiptsRepository
 import com.example.mycookbook.utils.ReceiptAdapter
+import kotlinx.coroutines.Dispatchers
 
 
 class AllReceiptsFragment : Fragment() {
@@ -26,22 +30,26 @@ class AllReceiptsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         // Get a reference to the binding object and inflate the fragment views.
         binding =
             DataBindingUtil.inflate(inflater, R.layout.all_receipts_fragment, container, false)
 
         setHasOptionsMenu(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setLogo(R.drawable.ic_book)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayUseLogoEnabled(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowHomeEnabled(true)
-        (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        (activity as? AppCompatActivity)?.supportActionBar?.title = getString(R.string.title)
-
+        if (activity is MainActivity) {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(true)
+            (activity as AppCompatActivity?)?.supportActionBar?.setLogo(R.drawable.ic_book)
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayUseLogoEnabled(true)
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowHomeEnabled(true)
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
+            (activity as? AppCompatActivity)?.supportActionBar?.title = getString(R.string.title)
+        }
         val application = requireNotNull(this.activity).application
-        val viewModelFactory = AllReceiptsViewModelFactory(application)
+        val dataBase = ReceiptsDatabase.getInstance(application).receiptsDatabaseDao
+        val receiptsLocalDataSource = ReceiptsLocalDataSource(dataBase, Dispatchers.Main)
+        val repository = DefaultReceiptsRepository(receiptsLocalDataSource)
+        val viewModelFactory = AllReceiptsViewModelFactory(repository)
 
         allReceiptsViewModel =
             ViewModelProvider(this, viewModelFactory).get(AllReceiptsViewModel::class.java)
@@ -53,7 +61,7 @@ class AllReceiptsFragment : Fragment() {
             allReceiptsViewModel.displayReceiptDetails(it)
         })
 
-        allReceiptsViewModel.receipts.observe(viewLifecycleOwner, Observer {
+        allReceiptsViewModel.receipts?.observe(viewLifecycleOwner, {
             it?.let {
                 adapter.submitList(it)
             }
@@ -62,7 +70,7 @@ class AllReceiptsFragment : Fragment() {
         binding.rvReceipts.adapter = adapter
         allReceiptsViewModel.navigateToSelectedReceipt.observe(
             viewLifecycleOwner,
-            Observer { receipt ->
+            { receipt ->
                 receipt?.let {
                     this.findNavController().navigate(
                         AllReceiptsFragmentDirections.actionAllReceiptsFragmentToDetailReceiptFragment(
@@ -84,13 +92,14 @@ class AllReceiptsFragment : Fragment() {
 
     private fun searchReceiptByName(query: String) {
         val searchQuery = "%$query%"
-        allReceiptsViewModel.searchReceiptByName(searchQuery)?.observe(
+        allReceiptsViewModel.searchReceiptByName(searchQuery).observe(
             viewLifecycleOwner, { list -> list.let { adapter.submitList(it) } })
     }
 
     private fun searchReceiptyByCategory(position: Int) {
         allReceiptsViewModel.searchReceiptByCategory(position)?.observe(
-            viewLifecycleOwner, { list -> list.let { adapter.submitList(it) } })
+            viewLifecycleOwner,
+            { list -> list.let { adapter.submitList(it.sortedBy { it.receiptId }) } })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,9 +133,7 @@ class AllReceiptsFragment : Fragment() {
             }
 
             override fun onQueryTextChange(query: String): Boolean {
-                if (query != null) {
-                    searchReceiptByName(query)
-                }
+                searchReceiptByName(query)
                 return true
             }
         })
